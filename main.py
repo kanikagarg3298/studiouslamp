@@ -44,8 +44,8 @@ def login():
                 if name == username:  #  #  checking for correct username
                     if password == pswd:  #  checking for correct password
                         spy_name = sal+" "+name
-                        print  'Welcome !! ' + spyname + "Your age is " + str(age) + ' and your rating is ' + str(rating)
-                        spy_chat(spyname, age, rating)  #  calling spy_chat
+                        print  'Welcome !! ' + name + "Your age is " + str(age) + ' and your rating is ' + str(rating)
+                        spy_chat(name, age, rating)  #  calling spy_chat
                         break
                     else:
                         c=1  # if username is incorrect c=1
@@ -75,7 +75,7 @@ def select_frnd():  #  function to select a friend
 
 def send_message(spy):  #  function for sending message
         selected_friend = select_frnd()  #  calling the select_friend function
-        receiver friends[selected_friend].name
+        receiver = friends[selected_friend].name
         original_image = raw_input("What is the name of original image : ")  #  take name of original image as input
         secret_text = raw_input("Enter your secret message : ")  #  entering the secret message
         output_path = "output.jpg"  #  name of image after encoding the message
@@ -101,8 +101,18 @@ def read_message():  #  function for reading message
     secret_text = Steganography.decode(output_path)  #  calling decode() function to decode
     print "The decoded message is "+secret_text  #  printing the secret text
     #  class to store details of message
-    new_chat = chatmessage(secret_text,False)
+    new_chat = Chats(secret_text,False)
     friends[selected_friend]['chats'],append(new_chat)
+
+
+def chat_history():
+    selected_friend = select_frnd()
+    choice = friends[selected_friend].name
+    for i in messages:
+                if choice == i.receiver:
+                    print Fore.BLUE + "Time: " + i.time
+                    print Fore.RED + "Receiver: " + i.receiver
+                    print Fore.BLUE + "Message: " + i.msg
 
 
 def add_friend():  #  function to add friend
@@ -112,8 +122,13 @@ def add_friend():  #  function to add friend
     frnd.sal = raw_input("What is your friends salutation")
     frnd.age = input("What is the age :")
     frnd.rating = input("What are the rating :")
+    frnd.is_online = True
     if len(frnd.name)>0 and 12<frnd.age<50 and frnd.rating > spy.rating:
         #  adding the details in the respective lists
+        with open('friend.csv','ab')as friend_data:
+        writer = csv.writer(friend_data)
+        writer.writerow([frnd.sal,frnd.age,frnd.rating,frnd.is_online])
+        print "Your frnd is added"
         friends.append(frnd)  #  appending friend details in friend list
     else:
         print "The friend cannot be added "
@@ -121,7 +136,7 @@ def add_friend():  #  function to add friend
 
 
 def add_status(c_status):  # function to add status
-    if c_status!= None:  #  checking if the status is none
+    if c_status is not None:  #  checking if the status is none
         print "Your current status is : "+c_status  #  printing the current status
     else:
         print 'You don\'t have any status currently!!'
@@ -143,12 +158,12 @@ def add_status(c_status):  # function to add status
     return updated_status  #  returning the new updated status
 
 
-def spy_chat(spy_name, spy_age, spy_rating):  #  function spy_chat to display menu
+def spy_chat(name, spy_age, spy_rating):  #  function spy_chat to display menu
     current_status = None
     choice=-1  #  choice variable set to -1
-    print 'here are your options ' + spy_name
+    print 'here are your options ' + name
     while choice != 0:  #  while loop will run until user choose to exit
-        print '  MENU  \n 1.Add a status \n 2.Add a friend \n 3.Send a message \n 4.Read a message \n 5.Read chats from a user \n 0.Exit'  #  printing menu
+        print '  MENU  \n 1.Add a status \n 2.Add a friend \n 3.Send a message \n 4.Read a message \n 5.Read chats from a user \n 6. Logout \n 0.Exit'  #  printing menu
         choice = input("ENTER YOUR CHOICE:")  #  taking choice input
         if choice == 1:  #  choice 1
             current_status = add_status(current_status)
@@ -172,19 +187,8 @@ def spy_chat(spy_name, spy_age, spy_rating):  #  function spy_chat to display me
             print ' Invalid Input '
 
 
-f=datetime.now()  #  calling function now() from datetime library
-print f.strptime("%b %d %Y %H:%M:%S")  #  use of stringtimeformat
-print 'Hello....!!! Welcome To SpyChat'  #  printing hello
-print 'Let\'s get started...'
-old_status = ["I spy","Watching Movies","battery about to die","Spy plots are hard,really hard"]  #  list of old status
-frnd1 = Spy("Mrinali", "Ms.", 19, 4, )
-frnd2 = Spy("Gyandev", "Mr.", 21,2.5)
-friends = [frnd1,frnd2]  #  list to store friend details
-spy_reply = raw_input('Are You A New User?? Y/N ')  #  taken as user is new or not
-if spy_reply.upper() == 'N':
-    print 'Welcome back!! '+spy.name+" . Your age is "+str(spy.age)+" and your rating is "+ str(spy.rating)
-    spy_chat(spy.name, spy.age, spy.rating)   # calling function spy_chat
-elif spy_reply.upper() == 'Y':
+
+def signup():
     spy = Spy("","",0,0.0)  #class for spy details
     spy.name = raw_input("Enter your name ")  #  name taken as input from user
     if spy.name.isspace():  #  check for space input
@@ -218,5 +222,21 @@ elif spy_reply.upper() == 'Y':
 
         else:
             print ' Enter a valid salutation '
-else:
+    else:
         print ' Ooops!!  Please enter a valid name. '
+
+
+def welcome():
+    f = datetime.now()  #  calling function now() from datetime library
+    print f.strftime("%b %d %Y %H:%M:%S")
+    print "Hello...!!! Welcome to spy chat.."
+    print 'Let\'s get started'
+    spy_reply = raw_input('Are you a new user? Y/N ')
+    if spy_reply.upper()  == 'N':
+        login()
+    elif spy_reply.upper() =='Y':
+                signup()
+    else:
+        print "Invalid input"
+
+welcome()
